@@ -8,13 +8,21 @@ exports.getAllUsers = async (req, res) => {
   });
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     message: 'The query has been done successfully',
-    user
+    user,
   });
 };
 exports.createUsers = async (req, res) => {
   const { name, email, password, role } = req.body;
+
+  if (role !== 'employee' && role !== 'client') {
+    return res.status(400).json({
+      role,
+      status: 'error1',
+      message: 'the role has to be equal to client or employee',
+    });
+  }
 
   const user = await User.create({
     name,
@@ -30,18 +38,36 @@ exports.createUsers = async (req, res) => {
   });
 };
 exports.getOneUser = (req, res) => {
-  console.log(req.params);
-  res.json({
-    message: 'hello from the get-user router by id',
+  const { user } = req;
+  res.status(200).json({
+    status: 'success',
+    message: 'the query has been done successfully',
+    user,
   });
 };
-exports.updateOneUser = (req, res) => {
-  res.json({
-    message: 'hello from the patch-user router',
+exports.updateOneUser = async (req, res) => {
+  const { user } = req;
+
+  const { name, email } = req.body;
+
+  await user.update({
+    name,
+    email,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'the product has been updated',
   });
 };
-exports.deleteOneUser = (req, res) => {
+exports.deleteOneUser = async (req, res) => {
+  const { user } = req;
+
+  await user.update({
+    status: 'unavailable ',
+  });
   res.json({
-    message: 'hello from the delete-user router',
+    status: 'success',
+    message: `the user has been delete seccessfully`,
   });
 };

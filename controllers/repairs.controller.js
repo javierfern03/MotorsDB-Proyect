@@ -1,30 +1,64 @@
-exports.getAllRepairs = (req, res) => {
+const Repair = require('../models/repairs.model');
+
+exports.getAllRepairs = async (req, res) => {
+  const repair = await Repair.findAll({
+    where: {
+      status: 'pending',
+    },
+  });
   res.json({
-    messge: 'hello from the get-repairs router ',
+    status: 'success',
+    messge: 'The query has been done successfully',
+    repair,
   });
 };
 
-exports.createReapairs = (req, res) => {
+exports.createReapairs = async (req, res) => {
+  const { date, userId } = req.body;
+  await Repair.create({
+    date,
+    userId,
+  });
   res.json({
-    messge: 'hello from the post-repairs router',
+    status: 'success',
+    messge: 'the Product has been created',
   });
 };
 
 exports.getOneRepair = (req, res) => {
-  console.log(req.params)
-  res.json({
-    messge: 'hello from the get-repair by id',
+  const { repair } = req;
+  res.status(200).json({
+    status: 'success',
+    message: 'the query has been done successfully',
+    repair,
   });
 };
 
-exports.updateOneRepair = (req, res) => {
+exports.updateOneRepair = async (req, res) => {
+  const { repair } = req;
+  await repair.update({
+    status: 'completed',
+  });
   res.json({
-    messge: 'hello from the patch-repair by id',
+    status: 'success',
+    messge: 'the product has been updated',
   });
 };
 
-exports.deleteOneRepair = (req, res) => {
-  res.json({
-    messge: 'hello from the delete-repair by id',
+exports.deleteOneRepair = async (req, res) => {
+  const { repair } = req;
+  const { status } = req.body;
+  if (status == 'completed') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'the repair is over',
+    });
+  }
+  await repair.update({
+    status: 'cancelled',
+  });
+  res.status(200).json({
+    status: 'success',
+    messge: `The product has been delete seccessfully`,
   });
 };
