@@ -36,9 +36,11 @@ exports.getOneRepair = (req, res) => {
 
 exports.updateOneRepair = async (req, res) => {
   const { repair } = req;
+
   await repair.update({
     status: 'completed',
   });
+
   res.json({
     status: 'success',
     messge: 'the product has been updated',
@@ -47,16 +49,18 @@ exports.updateOneRepair = async (req, res) => {
 
 exports.deleteOneRepair = async (req, res) => {
   const { repair } = req;
-  const { status } = req.body;
-  if (status == 'completed') {
+
+  if (repair.status == 'completed') {
     return res.status(400).json({
       status: 'error',
       message: 'the repair is over',
     });
   }
+
   await repair.update({
     status: 'cancelled',
   });
+
   res.status(200).json({
     status: 'success',
     messge: `The product has been delete seccessfully`,

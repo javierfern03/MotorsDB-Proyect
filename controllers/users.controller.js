@@ -1,4 +1,6 @@
 const User = require('../models/users.model');
+const bcrypt = require('bcryptjs');
+const generateJwt = require('../utils/jwt');
 
 exports.getAllUsers = async (req, res) => {
   const user = await User.findAll({
@@ -13,9 +15,9 @@ exports.getAllUsers = async (req, res) => {
     user,
   });
 };
-exports.createUsers = async (req, res) => {
+exports.singUp = async (req, res) => {
   const { name, email, password, role } = req.body;
-
+  console.log(password);
   if (role !== 'employee' && role !== 'client') {
     return res.status(400).json({
       role,
@@ -24,17 +26,28 @@ exports.createUsers = async (req, res) => {
     });
   }
 
+  const salt = await bcrypt.genSalt(10);
+  const encryptedPassword = await bcrypt.hash(password, salt);
+
   const user = await User.create({
     name,
     email,
-    password,
+    password: encryptedPassword,
     role,
   });
+
+  const token = await generateJwt(user.id);
 
   res.status(201).json({
     status: ' success',
     message: 'the user has been created',
-    user,
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
   });
 };
 exports.getOneUser = (req, res) => {
@@ -69,5 +82,43 @@ exports.deleteOneUser = async (req, res) => {
   res.json({
     status: 'success',
     message: `the user has been delete seccessfully`,
+  });
+};
+
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({
+    where: {
+      status: 'available',
+      email: email,
+    },
+  });
+
+  if (!user) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'User not fount',
+    });
+  }
+
+  if (!(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'email or password incorrect',
+    });
+  }
+
+  const token = await generateJwt(user.id);
+
+  res.status(200).json({
+    status: 'success',
+    token: token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
   });
 };
