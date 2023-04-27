@@ -1,8 +1,9 @@
 const User = require('../models/users.model');
 const bcrypt = require('bcryptjs');
 const generateJwt = require('../utils/jwt');
+const catchAsync = require('../utils/catchAsync');
 
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = catchAsync(async (req, res) => {
   const user = await User.findAll({
     where: {
       status: 'available',
@@ -14,8 +15,9 @@ exports.getAllUsers = async (req, res) => {
     message: 'The query has been done successfully',
     user,
   });
-};
-exports.singUp = async (req, res) => {
+});
+
+exports.singUp = catchAsync(async (req, res) => {
   const { name, email, password, role } = req.body;
   console.log(password);
   if (role !== 'employee' && role !== 'client') {
@@ -49,16 +51,19 @@ exports.singUp = async (req, res) => {
       role: user.role,
     },
   });
-};
-exports.getOneUser = (req, res) => {
+});
+
+exports.getOneUser = catchAsync(async (req, res) => {
   const { user } = req;
+
   res.status(200).json({
     status: 'success',
     message: 'the query has been done successfully',
     user,
   });
-};
-exports.updateOneUser = async (req, res) => {
+});
+
+exports.updateOneUser = catchAsync(async (req, res) => {
   const { user } = req;
 
   const { name, email } = req.body;
@@ -72,8 +77,9 @@ exports.updateOneUser = async (req, res) => {
     status: 'success',
     message: 'the product has been updated',
   });
-};
-exports.deleteOneUser = async (req, res) => {
+});
+
+exports.deleteOneUser = catchAsync(async (req, res) => {
   const { user } = req;
 
   await user.update({
@@ -83,9 +89,9 @@ exports.deleteOneUser = async (req, res) => {
     status: 'success',
     message: `the user has been delete seccessfully`,
   });
-};
+});
 
-exports.login = async (req, res) => {
+exports.login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({
@@ -121,4 +127,4 @@ exports.login = async (req, res) => {
       role: user.role,
     },
   });
-};
+});

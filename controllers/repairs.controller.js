@@ -1,40 +1,49 @@
 const Repair = require('../models/repairs.model');
+const User = require('../models/users.model');
+const catchAsync = require('../utils/catchAsync');
 
-exports.getAllRepairs = async (req, res) => {
+exports.getAllRepairs = catchAsync(async (req, res) => {
   const repair = await Repair.findAll({
     where: {
       status: 'pending',
     },
+    include: [{ model: User, attributes: ['id', 'name', 'role', 'email'] }],
   });
+
   res.json({
     status: 'success',
     messge: 'The query has been done successfully',
     repair,
   });
-};
+});
 
-exports.createReapairs = async (req, res) => {
-  const { date, userId } = req.body;
+exports.createReapairs = catchAsync(async (req, res) => {
+  const { date, userId, description, motorsNumber } = req.body;
+
   await Repair.create({
     date,
     userId,
+    motorsNumber,
+    description,
   });
+
   res.json({
     status: 'success',
     messge: 'the Product has been created',
   });
-};
+});
 
-exports.getOneRepair = (req, res) => {
-  const { repair } = req;
+exports.getOneRepair = catchAsync(async (req, res) => {
+  const { oneRepair } = req;
+
   res.status(200).json({
     status: 'success',
     message: 'the query has been done successfully',
-    repair,
+    repair: oneRepair,
   });
-};
+});
 
-exports.updateOneRepair = async (req, res) => {
+exports.updateOneRepair = catchAsync(async (req, res) => {
   const { repair } = req;
 
   await repair.update({
@@ -45,9 +54,9 @@ exports.updateOneRepair = async (req, res) => {
     status: 'success',
     messge: 'the product has been updated',
   });
-};
+});
 
-exports.deleteOneRepair = async (req, res) => {
+exports.deleteOneRepair = catchAsync(async (req, res) => {
   const { repair } = req;
 
   if (repair.status == 'completed') {
@@ -65,4 +74,4 @@ exports.deleteOneRepair = async (req, res) => {
     status: 'success',
     messge: `The product has been delete seccessfully`,
   });
-};
+});

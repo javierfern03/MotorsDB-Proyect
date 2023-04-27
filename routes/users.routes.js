@@ -5,17 +5,15 @@ const UsersController = require('../controllers/users.controller');
 
 //MIDDLEWARES
 const usersMiddleware = require('../middlewares/users.middleware');
-const validationMiddleware = require('../middlewares/validationsMiddleware');
+const validationMiddleware = require('../middlewares/validations.middleware');
 const authMiddleware = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
-router.use(authMiddleware.protect);
-
 router
   .route('/')
   .get(UsersController.getAllUsers)
-  .post(usersMiddleware.validUsers, UsersController.singUp);
+  .post(validationMiddleware.singUpValidation, UsersController.singUp);
 
 router.post(
   '/login',
@@ -23,12 +21,14 @@ router.post(
   UsersController.login
 );
 
+router.use(authMiddleware.protect);
+
 router
   .route('/:id')
   .get(usersMiddleware.validExistUser, UsersController.getOneUser)
   .patch(
     usersMiddleware.validExistUser,
-    usersMiddleware.validUsers,
+    validationMiddleware.singUpValidation,
     authMiddleware.protectAccountOwner,
     UsersController.updateOneUser
   )
